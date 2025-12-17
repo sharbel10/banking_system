@@ -113,10 +113,9 @@ class NewTransactionCubit extends Cubit<NewTransactionState> {
     emit(state.copyWith(loading: true, error: null, clearTx: true));
 
     final res = facade.submitTransaction(
-      accountId: fromId,
       toAccountId: state.type == TransactionType.transfer ? state.selectedToId : null,
       type: state.type,
-      amount: amount,
+      amount: amount, fromAccountId: fromId,
     );
 
     res.when(

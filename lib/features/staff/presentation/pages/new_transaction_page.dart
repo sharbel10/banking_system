@@ -186,12 +186,22 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
                       ),
           
                     if (state.tx != null)
-                      _MessageCard(
-                        icon: Icons.receipt_long_rounded,
-                        title: state.tx!.status.name.toUpperCase(),
-                        subtitle: state.tx!.note ?? '',
-                        bg: cs.secondary.withOpacity(0.12),
-                      ),
+                      if (state.tx != null)
+                        _MessageCard(
+                          icon: state.tx!.status == TransactionStatus.pending
+                              ? Icons.hourglass_top_rounded
+                              : state.tx!.status == TransactionStatus.approved
+                              ? Icons.verified_rounded
+                              : Icons.block_rounded,
+                          title: state.tx!.status.name.toUpperCase(),
+                          subtitle: state.tx!.note ?? '',
+                          bg: state.tx!.status == TransactionStatus.pending
+                              ? Colors.amber.withOpacity(0.18)          // ✅ أصفر
+                              : state.tx!.status == TransactionStatus.approved
+                              ? cs.secondary.withOpacity(0.12)      // ✅ أخضر
+                              : cs.error.withOpacity(0.10),         // ✅ أحمر
+                        ),
+
                   ],
                 );
               },

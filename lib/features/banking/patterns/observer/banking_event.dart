@@ -19,3 +19,7 @@ class TransactionPending extends BankingEvent {
   const TransactionPending(this.transaction);
 }
 
+class TransactionRejected extends BankingEvent {
+  final TransactionEntity transaction;
+  const TransactionRejected(this.transaction);
+}

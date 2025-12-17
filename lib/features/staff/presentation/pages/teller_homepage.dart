@@ -41,6 +41,15 @@ class TellerHomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   _ActionTile(
+                    title: 'Scheduled Payments',
+                    subtitle: 'Create recurring transactions + Run due now (demo)',
+                    icon: Icons.schedule_rounded,
+                    accent: cs.tertiary,
+                    onTap: () => context.go('/staff/teller/scheduled'),
+                    enabled: true,
+                  ),
+                  const SizedBox(height: 12),
+                  _ActionTile(
                     title: 'Open Account',
                     subtitle: 'Factory Method (UI only for now)',
                     icon: Icons.add_card_rounded,

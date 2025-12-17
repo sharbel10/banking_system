@@ -8,10 +8,11 @@ import '../../data/services/scheduled_transaction_service.dart';
 import '../../domain/entities/account_entity.dart';
 import '../../domain/entities/transaction_entity.dart';
 
-import '../../domain/scheduled_transaction_entity.dart';
+import '../../domain/entities/scheduled_transaction_entity.dart';
 import '../../presentation/factories.dart';
 import '../../presentation/helpers.dart';
 import '../chain/approval_handler.dart';
+import '../factories/account_factory.dart';
 import '../observer/banking_event.dart';
 import '../observer/event_bus.dart';
 
@@ -183,4 +184,31 @@ class BankingFacade {
   Result<void> cancelScheduled(String id) => _scheduled.cancel(id);
 
   Result<int> runScheduledDueNow() => _scheduled.runDueNow();
+
+
+
+
+  Result<AccountEntity> createAccount({
+    required AccountFactory factory,
+    required String ownerName,
+    required double initialBalance,
+  }) {
+    final auth = _guard.require(Permission.manageAccounts);
+    return auth.when(
+      success: (_) {
+        if (ownerName.trim().isEmpty) return const Failure('Owner name is required');
+        if (initialBalance < 0) return const Failure('Initial balance cannot be negative');
+
+        final acc = factory.create(
+          ownerName: ownerName.trim(),
+          initialBalance: initialBalance,
+        );
+
+        _ds.addAccount(acc);
+        return Success(acc);
+      },
+      failure: (m) => Failure(m),
+    );
+  }
+
 }

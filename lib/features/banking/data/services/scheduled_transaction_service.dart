@@ -2,7 +2,7 @@ import '../../../../core/auth/permission_guard.dart';
 import '../../../../core/utils/result.dart';
 import '../../data/datasources/banking_local_datasources.dart';
 import '../../domain/entities/transaction_entity.dart';
-import '../../domain/scheduled_transaction_entity.dart';
+import '../../domain/entities/scheduled_transaction_entity.dart';
 
 class ScheduledTransactionService {
   final BankingLocalDataSource _ds;

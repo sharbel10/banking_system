@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../banking/domain/entities/transaction_entity.dart';
-import '../../../banking/domain/scheduled_transaction_entity.dart';
+import '../../../banking/domain/entities/scheduled_transaction_entity.dart';
 import '../../../banking/patterns/facade/banking_facade.dart';
 
 class ScheduledTransactionsPage extends StatefulWidget {
@@ -162,13 +162,6 @@ class _ScheduledTransactionsPageState extends State<ScheduledTransactionsPage> {
               leading: const Icon(Icons.event_available_rounded),
               title: const Text('Next run'),
               subtitle: Text(_nextRun.toString()),
-              trailing: IconButton(
-                icon: const Icon(Icons.edit_calendar_rounded),
-                onPressed: () {
-                  setState(() => _nextRun = _calcNextRunFromNow(_freq));
-                },
-
-              ),
             ),
           ),
 

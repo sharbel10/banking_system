@@ -1,4 +1,4 @@
-import 'entities/transaction_entity.dart';
+import 'transaction_entity.dart';
 enum ScheduleFrequency { once, daily, weekly, monthly }
 
 class ScheduledTransactionEntity {

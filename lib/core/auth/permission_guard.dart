@@ -6,6 +6,7 @@ enum Permission {
   approveTransaction,
   rejectTransaction,
   manageScheduled,
+  manageAccounts
 }
 
 class PermissionGuard {
@@ -24,6 +25,9 @@ class PermissionGuard {
       role == UserRole.manager || role == UserRole.admin,
       Permission.manageScheduled =>
       role == UserRole.teller || role == UserRole.manager || role == UserRole.admin,
+      Permission.manageAccounts =>
+      role == UserRole.teller || role == UserRole.manager || role == UserRole.admin,
+
     };
 
     return allowed ? const Success(null) : const Failure('Unauthorized');

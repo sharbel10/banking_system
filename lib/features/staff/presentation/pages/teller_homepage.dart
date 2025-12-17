@@ -22,7 +22,7 @@ class TellerHomePage extends StatelessWidget {
           children: [
             _HeaderCard(
               title: 'Teller Operations',
-              subtitle: 'Create transactions and manage customer accounts (demo).',
+              subtitle: 'Create transactions and manage customer accounts.',
               icon: Icons.badge_rounded,
               tint: cs.primary.withOpacity(0.10),
             ),
@@ -33,7 +33,7 @@ class TellerHomePage extends StatelessWidget {
                 children: [
                   _ActionTile(
                     title: 'New Transaction',
-                    subtitle: 'Deposit / Withdraw / Transfer + Approval chain',
+                    subtitle: 'Deposit / Withdraw / Transfer + Approval',
                     icon: Icons.swap_horiz_rounded,
                     accent: cs.primary,
                     onTap: () => context.go('/staff/teller/new-transaction'),
@@ -42,7 +42,7 @@ class TellerHomePage extends StatelessWidget {
                   const SizedBox(height: 12),
                   _ActionTile(
                     title: 'Scheduled Payments',
-                    subtitle: 'Create recurring transactions + Run due now (demo)',
+                    subtitle: 'Create recurring transactions + Run due now',
                     icon: Icons.schedule_rounded,
                     accent: cs.tertiary,
                     onTap: () => context.go('/staff/teller/scheduled'),
@@ -51,30 +51,31 @@ class TellerHomePage extends StatelessWidget {
                   const SizedBox(height: 12),
                   _ActionTile(
                     title: 'Open Account',
-                    subtitle: 'Factory Method (UI only for now)',
+                    subtitle: 'create an account for customer',
                     icon: Icons.add_card_rounded,
                     accent: cs.secondary,
-                    onTap: () {},
-                    enabled: false,
+                    onTap: () => context.go('/staff/teller/create-account'),
+                    enabled: true,
                   ),
+
                   const SizedBox(height: 12),
-                  _ActionTile(
-                    title: 'Search Customer',
-                    subtitle: 'Find customer by name / account (UI only)',
-                    icon: Icons.search_rounded,
-                    accent: cs.primary,
-                    onTap: () {},
-                    enabled: false,
-                  ),
-                  const SizedBox(height: 12),
-                  _ActionTile(
-                    title: 'Customer Accounts',
-                    subtitle: 'View accounts + balances (UI only)',
-                    icon: Icons.account_balance_wallet_rounded,
-                    accent: cs.primary,
-                    onTap: () {},
-                    enabled: false,
-                  ),
+                  // _ActionTile(
+                  //   title: 'Search Customer',
+                  //   subtitle: 'Find customer by name / account (UI only)',
+                  //   icon: Icons.search_rounded,
+                  //   accent: cs.primary,
+                  //   onTap: () {},
+                  //   enabled: false,
+                  // ),
+                  // const SizedBox(height: 12),
+                  // _ActionTile(
+                  //   title: 'Customer Accounts',
+                  //   subtitle: 'View accounts + balances (UI only)',
+                  //   icon: Icons.account_balance_wallet_rounded,
+                  //   accent: cs.primary,
+                  //   onTap: () {},
+                  //   enabled: false,
+                  // ),
                 ],
               ),
             ),

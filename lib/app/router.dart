@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../features/role_selection/presentation/role_selection_page.dart';
+import '../features/staff/presentation/pages/create_account_page.dart';
 import '../features/staff/presentation/pages/scheduled_transaction_page.dart';
 import '../features/staff/presentation/pages/staff_dashboard_page.dart';
 import '../features/staff/presentation/pages/teller_homepage.dart';
@@ -30,7 +31,10 @@ class AppRouter {
         path: '/staff/teller/scheduled',
         builder: (_, __) => const ScheduledTransactionsPage(),
       ),
-
+      GoRoute(
+        path: '/staff/teller/create-account',
+        builder: (_, __) => const CreateAccountPage(),
+      ),
     ],
   );
 }

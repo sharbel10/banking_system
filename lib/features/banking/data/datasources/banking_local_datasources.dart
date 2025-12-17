@@ -1,6 +1,6 @@
 import '../../domain/entities/account_entity.dart';
 import '../../domain/entities/transaction_entity.dart';
-import '../../domain/scheduled_transaction_entity.dart';
+import '../../domain/entities/scheduled_transaction_entity.dart';
 
 class BankingLocalDataSource {
   final Map<String, AccountEntity> _accounts = {};
@@ -20,10 +20,11 @@ class BankingLocalDataSource {
 
   void _seed() {
     final list = <AccountEntity>[
-      const AccountEntity(id: 'ACC-001', ownerName: 'Ahmad Ali', balance: 1200),
-      const AccountEntity(id: 'ACC-002', ownerName: 'Sara Mohammed', balance: 5000),
-      const AccountEntity(id: 'ACC-003', ownerName: 'Omar Hassan', balance: 300),
+      const AccountEntity(id: 'ACC-001', ownerName: 'Ahmad Ali', balance: 1200, type: AccountType.checking),
+      const AccountEntity(id: 'ACC-002', ownerName: 'Sara Mohammed', balance: 5000, type: AccountType.savings),
+      const AccountEntity(id: 'ACC-003', ownerName: 'Omar Hassan', balance: 300, type: AccountType.checking),
     ];
+
     for (final a in list) {
       _accounts[a.id] = a;
     }
@@ -101,4 +102,9 @@ class BankingLocalDataSource {
       _scheduled.values.where((s) => s.isActive && !s.nextRunAt.isAfter(now)),
     );
   }
+
+  void addAccount(AccountEntity account) {
+    _accounts[account.id] = account;
+  }
+
 }

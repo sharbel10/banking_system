@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/di/injection.dart';
-import '../../../banking/domain/entities/transaction_entity.dart';
-import '../bloc/new_transaction_cubit.dart';
+import '../../../../../core/di/injection.dart';
+import '../../../../banking/domain/entities/transaction_entity.dart';
+import '../../bloc/new_transaction_cubit.dart';
 
 class NewTransactionPage extends StatefulWidget {
   const NewTransactionPage({super.key});

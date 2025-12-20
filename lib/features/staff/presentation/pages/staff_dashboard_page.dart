@@ -139,6 +139,7 @@ class StaffDashboardPage extends StatelessWidget {
                                     .read<SessionCubit>()
                                     .setStaffMode(StaffMode.manager),
                               ),
+
                             ],
                           );
                         },

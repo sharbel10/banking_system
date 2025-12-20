@@ -1,6 +1,7 @@
 import '../../../../core/utils/result.dart';
 import '../../data/datasources/banking_local_datasources.dart';
 import '../../domain/entities/transaction_entity.dart';
+import '../state/account_context.dart';
 import 'transaction_strategy.dart';
 
 class DepositStrategy implements TransactionStrategy {
@@ -12,9 +13,17 @@ class DepositStrategy implements TransactionStrategy {
     final acc = ds.getAccount(tx.accountId);
     if (acc == null) return const Failure('Account not found');
 
-    final newBalance = acc.balance + tx.amount;
-    ds.updateBalance(tx.accountId, newBalance);
+    final ctx = AccountContext(AccountContext.fromDataState(acc.state));
+    final applied = ctx.deposit(acc, tx.amount);
 
-    return Success(tx.copyWith(note: 'Deposit applied. New balance: $newBalance'));
+    return applied.when(
+      success: (updated) {
+        ds.updateBalance(updated.id, updated.balance);
+        return Success(
+          tx.copyWith(note: 'Deposit applied. New balance: ${updated.balance}'),
+        );
+      },
+      failure: (m) => Failure(m),
+    );
   }
 }

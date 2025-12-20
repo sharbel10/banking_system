@@ -59,6 +59,15 @@ class TellerHomePage extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 12),
+                  _ActionTile(
+                    title: 'Customer Accounts',
+                    subtitle: 'View accounts + balances',
+                    icon: Icons.account_balance_wallet_rounded,
+                    accent: cs.primary,
+                    onTap: () => context.go('/staff/teller/accounts'),
+                    enabled: true,
+                  ),
+
                   // _ActionTile(
                   //   title: 'Search Customer',
                   //   subtitle: 'Find customer by name / account (UI only)',

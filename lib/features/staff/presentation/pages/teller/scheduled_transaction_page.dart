@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/di/injection.dart';
-import '../../../banking/domain/entities/transaction_entity.dart';
-import '../../../banking/domain/entities/scheduled_transaction_entity.dart';
-import '../../../banking/patterns/facade/banking_facade.dart';
+import '../../../../../core/di/injection.dart';
+import '../../../../banking/domain/entities/transaction_entity.dart';
+import '../../../../banking/domain/entities/scheduled_transaction_entity.dart';
+import '../../../../banking/patterns/facade/banking_facade.dart';
 
 class ScheduledTransactionsPage extends StatefulWidget {
   const ScheduledTransactionsPage({super.key});

@@ -1,17 +1,19 @@
 import '../../domain/entities/account_entity.dart';
+import '../../domain/entities/audit_log_entity.dart';
 import '../../domain/entities/transaction_entity.dart';
 import '../../domain/entities/scheduled_transaction_entity.dart';
+import '../../domain/entities/account_state.dart';
 
 class BankingLocalDataSource {
   final Map<String, AccountEntity> _accounts = {};
 
-  // ✅ History (all requests: approved/pending/rejected)
+  // ✅ History (all transactions)
   final List<TransactionEntity> _transactions = [];
 
-  // ✅ Pending approvals list (manager inbox)
+  // ✅ Pending approvals (manager inbox – transactions فقط)
   final Map<String, TransactionEntity> _pending = {};
 
-  // ✅ Scheduled/Recurring
+  // ✅ Scheduled / Recurring
   final Map<String, ScheduledTransactionEntity> _scheduled = {};
 
   BankingLocalDataSource() {
@@ -20,9 +22,27 @@ class BankingLocalDataSource {
 
   void _seed() {
     final list = <AccountEntity>[
-      const AccountEntity(id: 'ACC-001', ownerName: 'Ahmad Ali', balance: 1200, type: AccountType.checking),
-      const AccountEntity(id: 'ACC-002', ownerName: 'Sara Mohammed', balance: 5000, type: AccountType.savings),
-      const AccountEntity(id: 'ACC-003', ownerName: 'Omar Hassan', balance: 300, type: AccountType.checking),
+      const AccountEntity(
+        id: 'ACC-001',
+        ownerName: 'Ahmad Ali',
+        balance: 1200,
+        type: AccountType.checking,
+        state: AccountState.active,
+      ),
+      const AccountEntity(
+        id: 'ACC-002',
+        ownerName: 'Sara Mohammed',
+        balance: 5000,
+        type: AccountType.savings,
+        state: AccountState.active,
+      ),
+      const AccountEntity(
+        id: 'ACC-003',
+        ownerName: 'Omar Hassan',
+        balance: 300,
+        type: AccountType.checking,
+        state: AccountState.active,
+      ),
     ];
 
     for (final a in list) {
@@ -43,6 +63,17 @@ class BankingLocalDataSource {
     final acc = _accounts[id];
     if (acc == null) return;
     _accounts[id] = acc.copyWith(balance: newBalance);
+  }
+
+  // ✅ Manager-only
+  void updateAccountState(String id, AccountState newState) {
+    final acc = _accounts[id];
+    if (acc == null) return;
+    _accounts[id] = acc.copyWith(state: newState);
+  }
+
+  void addAccount(AccountEntity account) {
+    _accounts[account.id] = account;
   }
 
   // ----------------------------
@@ -68,7 +99,7 @@ class BankingLocalDataSource {
   }
 
   // ----------------------------
-  // Pending approvals (Manager)
+  // Pending approvals (Manager) – Transactions only
   // ----------------------------
   void addPending(TransactionEntity tx) {
     _pending[tx.id] = tx;
@@ -103,8 +134,13 @@ class BankingLocalDataSource {
     );
   }
 
-  void addAccount(AccountEntity account) {
-    _accounts[account.id] = account;
+  // ✅ Audit Logs
+  final List<AuditLogEntity> _auditLogs = [];
+
+  List<AuditLogEntity> getAuditLogs() => List.unmodifiable(_auditLogs);
+
+  void addAudit(AuditLogEntity e) {
+    _auditLogs.insert(0, e); // newest first
   }
 
 }

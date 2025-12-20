@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/di/injection.dart';
-import '../../../banking/domain/entities/account_entity.dart';
-import '../../../banking/patterns/facade/banking_facade.dart';
-import '../../../banking/patterns/factories/account_factory.dart';
+import '../../../../../core/di/injection.dart';
+import '../../../../banking/domain/entities/account_entity.dart';
+import '../../../../banking/patterns/facade/banking_facade.dart';
+import '../../../../banking/patterns/factories/account_factory.dart';
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key});

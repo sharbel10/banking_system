@@ -5,17 +5,20 @@ import '../../../../core/utils/result.dart';
 import '../../data/datasources/banking_local_datasources.dart';
 import '../../data/services/manager_review_services.dart';
 import '../../data/services/scheduled_transaction_service.dart';
-import '../../domain/entities/account_entity.dart';
-import '../../domain/entities/transaction_entity.dart';
 
+import '../../domain/entities/account_entity.dart';
+import '../../domain/entities/account_state.dart';
+import '../../domain/entities/audit_log_entity.dart';
+import '../../domain/entities/transaction_entity.dart';
 import '../../domain/entities/scheduled_transaction_entity.dart';
+
 import '../../presentation/factories.dart';
 import '../../presentation/helpers.dart';
+
 import '../chain/approval_handler.dart';
 import '../factories/account_factory.dart';
 import '../observer/banking_event.dart';
 import '../observer/event_bus.dart';
-
 import '../strategy/transaction_strategy.dart';
 
 class BankingFacade {
@@ -26,6 +29,7 @@ class BankingFacade {
   final TransactionStrategyFactory _strategyFactory;
 
   final TransactionValidationHelper _validator;
+  List<AuditLogEntity> getAuditLogs() => _ds.getAuditLogs();
 
   final PermissionGuard _guard;
   late final ManagerReviewService _managerReview;
@@ -59,9 +63,12 @@ class BankingFacade {
   // Read APIs (Customer/Staff)
   // ----------------------------
   List<AccountEntity> getAccounts() => _ds.getAccounts();
+
   double getBalance(String accountId) => _ds.getBalance(accountId);
+
   List<TransactionEntity> getTransactions({String? accountId}) =>
       _ds.getTransactions(accountId: accountId);
+
   List<TransactionEntity> getPendingApprovals() => _ds.getPendingApprovals();
 
   List<ScheduledTransactionEntity> getScheduled() => _ds.getScheduled();
@@ -176,6 +183,28 @@ class BankingFacade {
   }
 
   // ----------------------------
+  // Manager: Change Account State (Freeze / Activate / Suspend / Close)
+  // ----------------------------
+  Result<void> managerChangeAccountState({
+    required String accountId,
+    required AccountState newState,
+  }) {
+    final auth = _guard.require(Permission.manageAccountState);
+    return auth.when(
+      success: (_) {
+        final acc = _ds.getAccount(accountId);
+        if (acc == null) return const Failure('Account not found.');
+
+        if (acc.state == newState) return const Failure('Account is already in this state.');
+
+        _ds.updateAccountState(accountId, newState);
+        return const Success(null);
+      },
+      failure: (m) => Failure(m),
+    );
+  }
+
+  // ----------------------------
   // Scheduled / Recurring
   // ----------------------------
   Result<ScheduledTransactionEntity> createScheduled(ScheduledTransactionEntity s) =>
@@ -184,10 +213,25 @@ class BankingFacade {
   Result<void> cancelScheduled(String id) => _scheduled.cancel(id);
 
   Result<int> runScheduledDueNow() => _scheduled.runDueNow();
+  void _audit({
+    required String actor,
+    required AuditAction action,
+    required String message,
+  }) {
+    _ds.addAudit(
+      AuditLogEntity(
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        at: DateTime.now(),
+        actor: actor,
+        action: action,
+        message: message,
+      ),
+    );
+  }
 
-
-
-
+  // ----------------------------
+  // Create Account (Staff)
+  // ----------------------------
   Result<AccountEntity> createAccount({
     required AccountFactory factory,
     required String ownerName,
@@ -210,5 +254,4 @@ class BankingFacade {
       failure: (m) => Failure(m),
     );
   }
-
 }

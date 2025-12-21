@@ -134,13 +134,13 @@ class BankingLocalDataSource {
     );
   }
 
-  // ✅ Audit Logs
+
   final List<AuditLogEntity> _auditLogs = [];
 
   List<AuditLogEntity> getAuditLogs() => List.unmodifiable(_auditLogs);
 
   void addAudit(AuditLogEntity e) {
-    _auditLogs.insert(0, e); // newest first
+    _auditLogs.insert(0, e);
   }
 
 }

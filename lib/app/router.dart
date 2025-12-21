@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../features/role_selection/presentation/role_selection_page.dart';
 
 import '../features/staff/presentation/pages/manager/manage_accounts_page.dart';
+import '../features/staff/presentation/pages/manager/manager_audit_logs.dart';
 import '../features/staff/presentation/pages/manager/manager_reports_page.dart';
 import '../features/staff/presentation/pages/staff_dashboard_page.dart';
 import '../features/staff/presentation/pages/teller/create_account_page.dart';
@@ -77,6 +78,11 @@ class AppRouter {
         path: '/staff/manager/reports',
         builder: (_, __) => const ManagerReportsPage(),
       ),
+      GoRoute(
+        path: '/staff/manager/audit',
+        builder: (_, __) => const ManagerAuditLogsPage(),
+      ),
+
 
     ],
   );

@@ -97,6 +97,12 @@ class BankingFacade {
         );
 
         _bus.emit(TransactionSubmitted(request));
+        _audit(
+          actor: 'teller',
+          action: AuditAction.txSubmitted,
+          message: 'Submitted ${request.type.name} \$${request.amount} from ${request.accountId}'
+              '${request.toAccountId == null ? '' : ' to ${request.toAccountId}'} (tx:${request.id})',
+        );
 
         final v = _validator.validate(
           ds: _ds,
@@ -169,18 +175,43 @@ class BankingFacade {
   Result<TransactionEntity> managerApprove(String txId) {
     final auth = _guard.require(Permission.approveTransaction);
     return auth.when(
-      success: (_) => _managerReview.approve(txId),
+      success: (_) {
+        final res = _managerReview.approve(txId);
+        res.when(
+          success: (tx) => _audit(
+            actor: 'manager',
+            action: AuditAction.txApproved,
+            message: 'Approved tx:${tx.id} (${tx.type.name}) \$${tx.amount}',
+          ),
+          failure: (_) {},
+        );
+        return res;
+      },
       failure: (m) => Failure(m),
     );
   }
 
+
   Result<TransactionEntity> managerReject(String txId, {String? reason}) {
     final auth = _guard.require(Permission.rejectTransaction);
     return auth.when(
-      success: (_) => _managerReview.reject(txId, reason: reason),
+      success: (_) {
+        final res = _managerReview.reject(txId, reason: reason);
+        res.when(
+          success: (tx) => _audit(
+            actor: 'manager',
+            action: AuditAction.txRejected,
+            message: 'Rejected tx:${tx.id} (${tx.type.name}) \$${tx.amount}'
+                '${(reason == null || reason.isEmpty) ? '' : ' — Reason: $reason'}',
+          ),
+          failure: (_) {},
+        );
+        return res;
+      },
       failure: (m) => Failure(m),
     );
   }
+
 
   // ----------------------------
   // Manager: Change Account State (Freeze / Activate / Suspend / Close)
@@ -198,6 +229,12 @@ class BankingFacade {
         if (acc.state == newState) return const Failure('Account is already in this state.');
 
         _ds.updateAccountState(accountId, newState);
+        _audit(
+          actor: 'manager',
+          action: AuditAction.accountStateChanged,
+          message: 'Changed account:${accountId} state → ${newState.label}',
+        );
+
         return const Success(null);
       },
       failure: (m) => Failure(m),
@@ -249,9 +286,16 @@ class BankingFacade {
         );
 
         _ds.addAccount(acc);
+        _audit(
+          actor: 'teller',
+          action: AuditAction.accountCreated,
+          message: 'Created account:${acc.id} (${acc.type.name}) for ${acc.ownerName} with \$${acc.balance}',
+        );
+
         return Success(acc);
       },
       failure: (m) => Failure(m),
     );
   }
+
 }

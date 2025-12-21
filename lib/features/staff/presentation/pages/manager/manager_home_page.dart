@@ -34,14 +34,20 @@ class ManagerHomePage extends StatelessWidget {
               onTap: () => context.go('/staff/manager/accounts'),
             ),
             const SizedBox(height: 12),
-
-            // ✅ NEW
             _ActionCard(
               title: 'Reports',
               subtitle: 'Daily transactions & account summary',
               icon: Icons.receipt_long_rounded,
               onTap: () => context.go('/staff/manager/reports'),
             ),
+            const SizedBox(height: 12),
+            _ActionCard(
+              title: 'Audit Logs',
+              subtitle: 'Track actions: approvals, state changes, scheduling...',
+              icon: Icons.list_alt_rounded,
+              onTap: () => context.go('/staff/manager/audit'),
+            ),
+
 
           ],
         ),

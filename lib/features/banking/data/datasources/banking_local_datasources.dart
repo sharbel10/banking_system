@@ -1,19 +1,17 @@
 import '../../domain/entities/account_entity.dart';
+import '../../domain/entities/account_node_entity.dart';
 import '../../domain/entities/audit_log_entity.dart';
 import '../../domain/entities/transaction_entity.dart';
 import '../../domain/entities/scheduled_transaction_entity.dart';
-import '../../domain/entities/account_state.dart';
+import '../../patterns/state/account_state.dart';
 
 class BankingLocalDataSource {
   final Map<String, AccountEntity> _accounts = {};
 
-  // ✅ History (all transactions)
   final List<TransactionEntity> _transactions = [];
 
-  // ✅ Pending approvals (manager inbox – transactions فقط)
   final Map<String, TransactionEntity> _pending = {};
 
-  // ✅ Scheduled / Recurring
   final Map<String, ScheduledTransactionEntity> _scheduled = {};
 
   BankingLocalDataSource() {
@@ -44,9 +42,18 @@ class BankingLocalDataSource {
         state: AccountState.active,
       ),
     ];
-
     for (final a in list) {
       _accounts[a.id] = a;
+
+      // main node
+      _nodes[a.id] = AccountNodeEntity(
+        id: a.id,
+        name: a.ownerName,
+        balance: a.balance,
+        parentId: null,
+        ownerMainAccountId: a.id,
+        nodeType: AccountNodeType.main,
+      );
     }
   }
 
@@ -62,10 +69,17 @@ class BankingLocalDataSource {
   void updateBalance(String id, double newBalance) {
     final acc = _accounts[id];
     if (acc == null) return;
+
     _accounts[id] = acc.copyWith(balance: newBalance);
+
+    final node = _nodes[id];
+    if (node != null && node.parentId == null) {
+      _nodes[id] = node.copyWith(balance: newBalance);
+    }
   }
 
-  // ✅ Manager-only
+
+  //  Manager-only
   void updateAccountState(String id, AccountState newState) {
     final acc = _accounts[id];
     if (acc == null) return;
@@ -74,7 +88,18 @@ class BankingLocalDataSource {
 
   void addAccount(AccountEntity account) {
     _accounts[account.id] = account;
+
+    //  add main node
+    _nodes[account.id] = AccountNodeEntity(
+      id: account.id,
+      name: account.ownerName,
+      balance: account.balance,
+      parentId: null,
+      ownerMainAccountId: account.id,
+      nodeType: AccountNodeType.main,
+    );
   }
+
 
   // ----------------------------
   // Transactions History
@@ -142,5 +167,15 @@ class BankingLocalDataSource {
   void addAudit(AuditLogEntity e) {
     _auditLogs.insert(0, e);
   }
+
+
+  final Map<String, AccountNodeEntity> _nodes = {};
+  List<AccountNodeEntity> getAccountNodes(String ownerMainAccountId) =>
+      _nodes.values.where((n) => n.ownerMainAccountId == ownerMainAccountId).toList();
+
+  void upsertNode(AccountNodeEntity n) {
+    _nodes[n.id] = n;
+  }
+
 
 }

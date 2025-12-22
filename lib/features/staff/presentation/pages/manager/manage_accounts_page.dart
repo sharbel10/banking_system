@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../core/di/injection.dart';
 import '../../../../banking/domain/entities/account_entity.dart';
-import '../../../../banking/domain/entities/account_state.dart';
+import '../../../../banking/patterns/state/account_state.dart';
 import '../../../../banking/patterns/facade/banking_facade.dart';
 
 class ManagerAccountsPage extends StatefulWidget {

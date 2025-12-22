@@ -1,39 +1,47 @@
 import 'dart:async';
-
-import 'package:banking_system/features/customer/data/models/notification_model.dart';
-import 'package:banking_system/features/customer/patterns/facade/customer_facade_mock.dart';
-import 'package:banking_system/features/customer/presentation/bloc/notifications/notifications_state.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bloc/bloc.dart';
+import '../../../data/models/notification_model.dart';
+import '../../../patterns/facade/customer_facade_mock.dart';
+import 'notifications_state.dart';
 
 class NotificationsCubit extends Cubit<NotificationsState> {
   final CustomerFacadeMock facade;
   final String customerId;
+
   StreamSubscription<NotificationModel>? _sub;
   final List<NotificationModel> _items = [];
 
-  NotificationsCubit({required this.facade, required this.customerId})
-    : super(NotificationsInitial()) {
-    _start();
+  NotificationsCubit({
+    required this.facade,
+    required this.customerId,
+  }) : super(NotificationsInitial()) {
+    _init();
   }
 
-  Future<void> _start() async {
+  Future<void> _init() async {
     try {
       final past = await facade.fetchPastNotifications(customerId);
-      if (past.isNotEmpty) {
-        _items.clear();
-        _items.addAll(past);
-        emit(NotificationsLoadSuccess(List.unmodifiable(_items)));
-      } else {
-        emit(NotificationsEmpty());
-      }
+      _items
+        ..clear()
+        ..addAll(past);
+
+      _emitList();
 
       _sub?.cancel();
-      _sub = facade.notificationsStream(customerId).listen((notif) {
-        _items.insert(0, notif);
-        emit(NotificationsLoadSuccess(List.unmodifiable(_items)));
-      }, onError: (err) => emit(NotificationsError(err.toString())));
+      _sub = facade.notificationsStream(customerId).listen((n) {
+        _items.insert(0, n);
+        _emitList();
+      });
     } catch (e) {
       emit(NotificationsError(e.toString()));
+    }
+  }
+
+  void _emitList() {
+    if (_items.isEmpty) {
+      emit(NotificationsEmpty());
+    } else {
+      emit(NotificationsLoadSuccess(List.unmodifiable(_items)));
     }
   }
 

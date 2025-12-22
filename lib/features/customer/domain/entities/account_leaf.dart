@@ -24,12 +24,11 @@ class AccountLeaf implements AccountComponent {
   bool get isComposite => false;
 
   @override
-  void addChild(AccountComponent child) {
-    // TODO: implement addChild
-  }
+  void addChild(AccountComponent child) =>
+      throw UnsupportedError('Leaf cannot have children');
 
   @override
-  void removeChild(String childId) {
-    // TODO: implement removeChild
-  }
+  void removeChild(String childId) =>
+      throw UnsupportedError('Leaf cannot remove children');
+
 }

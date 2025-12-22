@@ -10,6 +10,7 @@ import 'package:banking_system/features/customer/presentation/pages/view_transac
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/session/session_cubit.dart';
 
 class CustomerHomePage extends StatelessWidget {
@@ -17,16 +18,17 @@ class CustomerHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sessionState = context.read<SessionCubit>().state;
-    String customerId = 'demo-customer';
+    final st = context.read<SessionCubit>().state;
+    final customerId = 'demo-customer';
+    final accountId = st.customerAccountId;
 
     return BlocProvider(
-      create: (_) =>
-          CustomerHomeBloc(facade: CustomerFacadeMock())
-            ..add(LoadCustomerHome(customerId)),
+      create: (_) => CustomerHomeBloc(facade: sl<CustomerFacadeMock>())
+        ..add(LoadCustomerHome(customerId, accountId: accountId)),
       child: const _CustomerHomeView(),
     );
   }
+
 }
 
 class _CustomerHomeView extends StatelessWidget {
@@ -76,21 +78,18 @@ class _CustomerHomeView extends StatelessWidget {
                     child: Center(child: CircularProgressIndicator()),
                   );
                 } else if (state is CustomerHomeLoaded) {
-                  final total = state.accounts.fold<double>(
-                    0,
-                    (p, a) => p + a.balance,
-                  );
+                  final total = state.root.getTotalBalance();
                   return _SummaryCard(totalBalance: total);
                 } else if (state is CustomerHomeError) {
                   return Text(
                     'Error: ${state.message}',
                     style: TextStyle(color: cs.error),
                   );
-                } else {
-                  return const SizedBox.shrink();
                 }
+                return const SizedBox.shrink();
               },
             ),
+
 
             const SizedBox(height: 16),
 

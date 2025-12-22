@@ -14,14 +14,16 @@ class ViewAccountsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sessionState = context.read<SessionCubit>().state;
-    String customerId = 'demo-customer';
+    final st = context
+        .read<SessionCubit>()
+        .state;
+    final customerId = 'demo-customer';
+    final accountId = st.customerAccountId;
+
     return BlocProvider(
       create: (_) {
-        final facade = sl<CustomerFacadeMock>();
-        ;
-        final bloc = AccountsBloc(facade: facade);
-        bloc.add(LoadAccounts(customerId));
+        final bloc = AccountsBloc(facade: sl<CustomerFacadeMock>());
+        bloc.add(LoadAccounts(customerId, accountId: accountId));
         return bloc;
       },
       child: const _ViewAccountsView(),
@@ -43,10 +45,10 @@ class _ViewAccountsView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () {
-              final sessionState = context.read<SessionCubit>().state;
-              final customerId = 'demo-customer';
-              context.read<AccountsBloc>().add(RefreshAccounts(customerId));
-            },
+  final st = context.read<SessionCubit>().state;
+  context.read<AccountsBloc>().add(RefreshAccounts('demo-customer', accountId: st.customerAccountId));
+
+  },
           ),
         ],
       ),

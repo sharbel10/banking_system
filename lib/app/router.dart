@@ -3,6 +3,7 @@ import 'package:banking_system/features/customer/presentation/pages/view_account
 import 'package:banking_system/features/customer/presentation/pages/view_transactions_page.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/customer/presentation/pages/cuwtomer_account_select_page.dart';
 import '../features/role_selection/presentation/role_selection_page.dart';
 
 import '../features/staff/presentation/pages/manager/manage_accounts_page.dart';
@@ -85,7 +86,11 @@ class AppRouter {
         path: '/staff/manager/audit',
         builder: (_, __) => const ManagerAuditLogsPage(),
       ),
-
+// ----------------------------
+      GoRoute(
+        path: '/customer/select',
+        builder: (context, state) => const CustomerSelectAccountPage(),
+      ),
       GoRoute(
         path: '/customer/home',
         builder: (context, state) {

@@ -80,7 +80,6 @@ class ScheduledTransactionService {
               _ds.upsertScheduled(updated);
             },
             failure: (_) {
-              // ignore (keep scheduled as is)
             },
           );
 
@@ -96,7 +95,7 @@ class ScheduledTransactionService {
     final t = s.nextRunAt;
 
     return switch (s.frequency) {
-      ScheduleFrequency.once => t, // (ممكن تلغيها بعد التشغيل إذا بدك)
+      ScheduleFrequency.once => t,
       ScheduleFrequency.daily => t.add(const Duration(days: 1)),
       ScheduleFrequency.weekly => t.add(const Duration(days: 7)),
       ScheduleFrequency.monthly => DateTime(t.year, t.month + 1, t.day, t.hour, t.minute),

@@ -6,8 +6,13 @@ class SessionCubit extends Cubit<SessionState> {
   SessionCubit() : super(const SessionState.initial());
 
   void actAsCustomer() {
-    emit(state.copyWith(role: UserRole.customer, clearStaffMode: true));
+    emit(state.copyWith(
+      role: UserRole.customer,
+      clearStaffMode: true,
+      clearCustomerAccount: true,
+    ));
   }
+
 
   void actAsStaff() {
     emit(state.copyWith(role: UserRole.staff, clearStaffMode: true));
@@ -20,4 +25,8 @@ class SessionCubit extends Cubit<SessionState> {
   void reset() {
     emit(const SessionState.initial());
   }
+  void setCustomerAccount(String accountId) {
+    emit(state.copyWith(customerAccountId: accountId));
+  }
+
 }

@@ -93,7 +93,8 @@ class RoleSelectionPage extends StatelessWidget {
                           ),
                           onTap: () {
                             context.read<SessionCubit>().actAsCustomer();
-                            context.go('/customer/home');
+                            context.go('/customer/select');
+
                           },
                         ),
                       ),

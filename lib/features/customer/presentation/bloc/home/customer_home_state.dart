@@ -1,9 +1,7 @@
-// lib/features/customer/presentation/blocs/customer_home/customer_home_state.dart
 import 'package:banking_system/features/customer/data/models/account_model.dart';
 import 'package:banking_system/features/customer/data/models/transaction_model.dart';
-import 'package:meta/meta.dart';
+import 'package:banking_system/features/customer/domain/entities/account_component.dart';
 
-@immutable
 abstract class CustomerHomeState {}
 
 class CustomerHomeInitial extends CustomerHomeState {}
@@ -11,10 +9,13 @@ class CustomerHomeInitial extends CustomerHomeState {}
 class CustomerHomeLoading extends CustomerHomeState {}
 
 class CustomerHomeLoaded extends CustomerHomeState {
-  final List<AccountModel> accounts;
+  final List<AccountModel> accounts; // خليها إذا بدك تضل تستخدمها
+  final AccountComponent root;       //  الجديد
   final List<TransactionModel> recentTransactions;
+
   CustomerHomeLoaded({
     required this.accounts,
+    required this.root,
     required this.recentTransactions,
   });
 }

@@ -8,19 +8,24 @@ class AccountsBloc extends Bloc<AccountsEvent, AccountsState> {
   final CustomerFacadeMock facade;
   AccountsBloc({required this.facade}) : super(AccountsInitial()) {
     on<LoadAccounts>(_onLoad);
-    on<RefreshAccounts>(_onLoad); // same logic
+    on<RefreshAccounts>(_onLoad);
   }
 
   Future<void> _onLoad(AccountsEvent event, Emitter emit) async {
-    final customerId = event is LoadAccounts
-        ? event.customerId
-        : (event as RefreshAccounts).customerId;
     emit(AccountsLoading());
     try {
-      final root = await facade.fetchAccountsHierarchy(customerId);
+      final customerId = (event is LoadAccounts) ? event.customerId : (event as RefreshAccounts).customerId;
+      final accountId  = (event is LoadAccounts) ? event.accountId  : (event as RefreshAccounts).accountId;
+
+      final root = await facade.fetchAccountsHierarchy(
+        customerId,
+        accountId: accountId,
+      );
+
       emit(AccountsLoaded(root));
     } catch (e) {
       emit(AccountsError(e.toString()));
     }
   }
+
 }

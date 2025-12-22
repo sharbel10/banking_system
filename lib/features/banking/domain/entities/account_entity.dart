@@ -1,4 +1,4 @@
-import 'account_state.dart';
+import '../../patterns/state/account_state.dart';
 
 enum AccountType { checking, savings, business }
 

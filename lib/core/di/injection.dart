@@ -25,53 +25,48 @@ Future<void> configureDependencies() async {
   sl.registerLazySingleton<SessionCubit>(() => SessionCubit());
 
   // Data + Bus
-  sl.registerLazySingleton<BankingLocalDataSource>(
-    () => BankingLocalDataSource(),
-  );
-
-  // Factories
-  sl.registerLazySingleton<ApprovalChainFactory>(
-    () => DefaultApprovalChainFactory(),
-  );
-  sl.registerLazySingleton<TransactionStrategyFactory>(
-    () => DefaultTransactionStrategyFactory(sl<BankingLocalDataSource>()),
-  );
-
+  sl.registerLazySingleton<BankingLocalDataSource>(() => BankingLocalDataSource());
   sl.registerLazySingleton<EventBus>(() => EventBus());
 
-  sl.registerLazySingleton<CustomerFacadeMock>(() => CustomerFacadeMock());
+  // Factories
+  sl.registerLazySingleton<ApprovalChainFactory>(() => DefaultApprovalChainFactory());
+  sl.registerLazySingleton<TransactionStrategyFactory>(
+        () => DefaultTransactionStrategyFactory(sl<BankingLocalDataSource>()),
+  );
 
-  sl.registerFactory(() => CustomerHomeBloc(facade: sl()));
-  sl.registerFactory(() => AccountsBloc(facade: sl()));
-  sl.registerFactory(() => SupportBloc(facade: sl()));
+  // CurrentSession (depends on SessionCubit state -> لازم factory)
   sl.registerFactory<auth.CurrentSession>(() {
     final st = sl<SessionCubit>().state;
 
-    // إذا مو staff، اعتبره customer
     if (st.role == session.UserRole.customer) {
       return const auth.CurrentSession(auth.UserRole.customer);
     }
 
-    // staff: خد staffMode (teller/manager)
-    final session.StaffMode mode = st.staffMode ?? session.StaffMode.teller;
+    final mode = st.staffMode ?? session.StaffMode.teller;
     return auth.CurrentSession(_mapStaffModeToUserRole(mode));
   });
 
-  // Facade
-  sl.registerFactory<BankingFacade>(
-    () => BankingFacade(
-      sl<BankingLocalDataSource>(),
-      sl<EventBus>(),
-      approvalChainFactory: sl<ApprovalChainFactory>(),
-      strategyFactory: sl<TransactionStrategyFactory>(),
-      session: sl<auth.CurrentSession>(),
-    ),
+  sl.registerFactory<BankingFacade>(() => BankingFacade(
+    sl<BankingLocalDataSource>(),
+    sl<EventBus>(),
+    approvalChainFactory: sl<ApprovalChainFactory>(),
+    strategyFactory: sl<TransactionStrategyFactory>(),
+    session: sl<auth.CurrentSession>(),
+  ));
+
+  sl.registerLazySingleton<CustomerFacadeMock>(
+        () => CustomerFacadeMock(banking: sl<BankingFacade>()),
   );
 
+  sl<CustomerFacadeMock>();
+
+  // Blocs
+  sl.registerFactory(() => CustomerHomeBloc(facade: sl()));
+  sl.registerFactory(() => AccountsBloc(facade: sl()));
+  sl.registerFactory(() => SupportBloc(facade: sl()));
+
   // Cubits
-  sl.registerFactory<NewTransactionCubit>(
-    () => NewTransactionCubit(sl<BankingFacade>()),
-  );
+  sl.registerFactory<NewTransactionCubit>(() => NewTransactionCubit(sl<BankingFacade>()));
 }
 
 auth.UserRole _mapStaffModeToUserRole(session.StaffMode m) {

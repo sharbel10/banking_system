@@ -79,7 +79,6 @@ class NewTransactionCubit extends Cubit<NewTransactionState> {
   }
 
   void selectFrom(String id) {
-    // لو transfer وكان to == from، خلي to أول حساب مختلف
     String? to = state.selectedToId;
     if (state.type == TransactionType.transfer && to == id) {
       to = state.accounts.firstWhere((a) => a.id != id, orElse: () => state.accounts.first).id;

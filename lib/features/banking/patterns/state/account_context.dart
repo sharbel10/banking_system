@@ -1,6 +1,6 @@
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/account_entity.dart';
-import '../../domain/entities/account_state.dart' as data;
+import 'account_state.dart' as data;
 import 'account_state_behavior.dart';
 
 class AccountContext {

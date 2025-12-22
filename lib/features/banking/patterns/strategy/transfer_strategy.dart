@@ -20,7 +20,7 @@ class TransferStrategy implements TransactionStrategy {
     final to = ds.getAccount(toId);
     if (to == null) return const Failure('To account not found');
 
-    // ✅ Apply state rules using State Pattern
+    //  Apply state rules using State Pattern
     final fromCtx = AccountContext(AccountContext.fromDataState(from.state));
     final toCtx = AccountContext(AccountContext.fromDataState(to.state));
 

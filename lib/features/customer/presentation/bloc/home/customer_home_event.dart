@@ -5,5 +5,6 @@ abstract class CustomerHomeEvent {}
 
 class LoadCustomerHome extends CustomerHomeEvent {
   final String customerId;
-  LoadCustomerHome(this.customerId);
+  final String? accountId;
+  LoadCustomerHome(this.customerId, {this.accountId});
 }

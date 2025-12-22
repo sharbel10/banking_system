@@ -196,10 +196,10 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
                           title: state.tx!.status.name.toUpperCase(),
                           subtitle: state.tx!.note ?? '',
                           bg: state.tx!.status == TransactionStatus.pending
-                              ? Colors.amber.withOpacity(0.18)          // ✅ أصفر
+                              ? Colors.amber.withOpacity(0.18)          //  أصفر
                               : state.tx!.status == TransactionStatus.approved
-                              ? cs.secondary.withOpacity(0.12)      // ✅ أخضر
-                              : cs.error.withOpacity(0.10),         // ✅ أحمر
+                              ? cs.secondary.withOpacity(0.12)      //  أخضر
+                              : cs.error.withOpacity(0.10),         //  أحمر
                         ),
 
                   ],

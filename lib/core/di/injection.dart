@@ -1,3 +1,7 @@
+import 'package:banking_system/features/customer/patterns/facade/customer_facade_mock.dart';
+import 'package:banking_system/features/customer/presentation/bloc/account/account_bloc.dart';
+import 'package:banking_system/features/customer/presentation/bloc/home/customer_home_bloc.dart';
+import 'package:banking_system/features/customer/presentation/bloc/support/support_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../features/banking/data/datasources/banking_local_datasources.dart';
@@ -21,15 +25,39 @@ Future<void> configureDependencies() async {
   sl.registerLazySingleton<SessionCubit>(() => SessionCubit());
 
   // Data + Bus
-  sl.registerLazySingleton<BankingLocalDataSource>(() => BankingLocalDataSource());
+  sl.registerLazySingleton<BankingLocalDataSource>(
+    () => BankingLocalDataSource(),
+  );
   sl.registerLazySingleton<EventBus>(() => EventBus());
 
   // Factories
-  sl.registerLazySingleton<ApprovalChainFactory>(() => DefaultApprovalChainFactory());
-  sl.registerLazySingleton<TransactionStrategyFactory>(
-        () => DefaultTransactionStrategyFactory(sl<BankingLocalDataSource>()),
+  sl.registerLazySingleton<ApprovalChainFactory>(
+    () => DefaultApprovalChainFactory(),
   );
+  sl.registerLazySingleton<TransactionStrategyFactory>(
+    () => DefaultTransactionStrategyFactory(sl<BankingLocalDataSource>()),
+  );
+  sl.registerLazySingleton<BankingLocalDataSource>(
+    () => BankingLocalDataSource(),
+  );
+  sl.registerLazySingleton<EventBus>(() => EventBus());
+  sl.registerFactory<BankingFacade>(
+    () => BankingFacade(
+      sl<BankingLocalDataSource>(),
+      sl<EventBus>(),
+      approvalChainFactory: sl<ApprovalChainFactory>(),
+      strategyFactory: sl<TransactionStrategyFactory>(),
+      session: sl<auth.CurrentSession>(),
+    ),
+  );
+  sl.registerFactory<NewTransactionCubit>(
+    () => NewTransactionCubit(sl<BankingFacade>()),
+  );
+  sl.registerLazySingleton<CustomerFacadeMock>(() => CustomerFacadeMock());
 
+  sl.registerFactory(() => CustomerHomeBloc(facade: sl()));
+  sl.registerFactory(() => AccountsBloc(facade: sl()));
+  sl.registerFactory(() => SupportBloc(facade: sl()));
   sl.registerFactory<auth.CurrentSession>(() {
     final st = sl<SessionCubit>().state;
 
@@ -43,18 +71,21 @@ Future<void> configureDependencies() async {
     return auth.CurrentSession(_mapStaffModeToUserRole(mode));
   });
 
-
   // Facade
-  sl.registerFactory<BankingFacade>(() => BankingFacade(
-    sl<BankingLocalDataSource>(),
-    sl<EventBus>(),
-    approvalChainFactory: sl<ApprovalChainFactory>(),
-    strategyFactory: sl<TransactionStrategyFactory>(),
-    session: sl<auth.CurrentSession>(),
-  ));
+  sl.registerFactory<BankingFacade>(
+    () => BankingFacade(
+      sl<BankingLocalDataSource>(),
+      sl<EventBus>(),
+      approvalChainFactory: sl<ApprovalChainFactory>(),
+      strategyFactory: sl<TransactionStrategyFactory>(),
+      session: sl<auth.CurrentSession>(),
+    ),
+  );
 
   // Cubits
-  sl.registerFactory<NewTransactionCubit>(() => NewTransactionCubit(sl<BankingFacade>()));
+  sl.registerFactory<NewTransactionCubit>(
+    () => NewTransactionCubit(sl<BankingFacade>()),
+  );
 }
 
 auth.UserRole _mapStaffModeToUserRole(session.StaffMode m) {
@@ -65,5 +96,3 @@ auth.UserRole _mapStaffModeToUserRole(session.StaffMode m) {
       return auth.UserRole.manager;
   }
 }
-
-

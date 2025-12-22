@@ -1,3 +1,6 @@
+import 'package:banking_system/features/customer/presentation/pages/customer_home_page.dart';
+import 'package:banking_system/features/customer/presentation/pages/view_accounts_page.dart';
+import 'package:banking_system/features/customer/presentation/pages/view_transactions_page.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/role_selection/presentation/role_selection_page.dart';
@@ -83,7 +86,20 @@ class AppRouter {
         builder: (_, __) => const ManagerAuditLogsPage(),
       ),
 
-
+      GoRoute(
+        path: '/customer/home',
+        builder: (context, state) {
+          return const CustomerHomePage(); // الصفحة تتعامل بنفسها مع Bloc/getIt
+        },
+      ),
+      GoRoute(
+        path: '/customer/accounts',
+        builder: (context, state) => const ViewAccountsPage(),
+      ),
+      GoRoute(
+        path: '/customer/transactions',
+        builder: (ctx, state) => const ViewTransactionsPage(),
+      ),
     ],
   );
 }

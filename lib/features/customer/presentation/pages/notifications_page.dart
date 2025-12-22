@@ -21,9 +21,7 @@ class NotificationsPage extends StatelessWidget {
     }();
 
     return BlocProvider(
-      create: (_) =>
-          NotificationsCubit(facade: facade, customerId: customerId)
-            ..loadInitial(),
+      create: (_) => NotificationsCubit(facade: facade, customerId: customerId),
       child: const _NotificationsView(),
     );
   }
@@ -38,13 +36,13 @@ class _NotificationsView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
-        actions: [
-          IconButton(
-            tooltip: 'Mark all read',
-            onPressed: () => context.read<NotificationsCubit>().markAllRead(),
-            icon: Icon(Icons.mark_email_read_rounded, color: cs.onSurface),
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     tooltip: 'Mark all read',
+        //     onPressed: () => context.read<NotificationsCubit>().markAllRead(),
+        //     icon: Icon(Icons.mark_email_read_rounded, color: cs.onSurface),
+        //   ),
+        // ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
@@ -108,15 +106,15 @@ class _NotifTile extends StatelessWidget {
                   onPressed: () => Navigator.of(context).pop(),
                   child: const Text('Close'),
                 ),
-                TextButton(
-                  onPressed: () {
-                    context.read<NotificationsCubit>().removeNotification(
-                      notification.id,
-                    );
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Remove'),
-                ),
+                // TextButton(
+                //   onPressed: () {
+                //     context.read<NotificationsCubit>().removeNotification(
+                //       notification.id,
+                //     );
+                //     Navigator.of(context).pop();
+                //   },
+                //   child: const Text('Remove'),
+                // ),
               ],
             ),
           );
@@ -144,16 +142,16 @@ class _NotifTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              IconButton(
-                tooltip: 'Remove',
-                onPressed: () => context
-                    .read<NotificationsCubit>()
-                    .removeNotification(notification.id),
-                icon: Icon(
-                  Icons.close_rounded,
-                  color: cs.onSurface.withOpacity(0.5),
-                ),
-              ),
+              // IconButton(
+              //   tooltip: 'Remove',
+              //   onPressed: () => context
+              //       .read<NotificationsCubit>()
+              //       .removeNotification(notification.id),
+              //   icon: Icon(
+              //     Icons.close_rounded,
+              //     color: cs.onSurface.withOpacity(0.5),
+              //   ),
+              // ),
             ],
           ),
         ),

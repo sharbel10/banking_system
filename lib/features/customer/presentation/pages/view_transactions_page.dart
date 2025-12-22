@@ -100,79 +100,129 @@ class _TransactionTile extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
+          // احصل على نفس الـ bloc من الـ context الحالي
+          final transactionsBloc = context.read<TransactionsBloc>();
+
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (_) => DraggableScrollableSheet(
-              expand: false,
-              initialChildSize: 0.6,
-              minChildSize: 0.4,
-              maxChildSize: 0.95,
-              builder: (_, controller) => Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(18),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      Row(
+            builder: (sheetContext) {
+              // نستخدم BlocProvider.value لنعطي الـ bottom sheet نفس instance
+              return BlocProvider.value(
+                value: transactionsBloc,
+                child: DraggableScrollableSheet(
+                  expand: false,
+                  initialChildSize: 0.6,
+                  minChildSize: 0.4,
+                  maxChildSize: 0.95,
+                  builder: (context2, controller) => Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(18),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
                         children: [
-                          Expanded(
-                            child: Text(
-                              'Transaction ${txn.id}',
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Transaction ${txn.id}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ListTile(
+                            title: Text(txn.description),
+                            subtitle: Text(txn.date),
+                            trailing: Text(
+                              '\$${txn.amount.toStringAsFixed(2)}',
                               style: const TextStyle(
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () => Navigator.of(context).pop(),
+                          const SizedBox(height: 12),
+                          Expanded(child: TransactionChainWidget(txn: txn)),
+                          const SizedBox(height: 12),
+
+                          // هنا نحتفظ بنفس BlocConsumer كما كان لديك
+                          BlocConsumer<TransactionsBloc, TransactionsState>(
+                            listener: (context, state) {
+                              if (state is TransactionsLoaded) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Transaction updated'),
+                                  ),
+                                );
+                                Navigator.of(context).pop();
+                              }
+                              if (state is TransactionsError) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: ${state.message}'),
+                                  ),
+                                );
+                              }
+                            },
+                            builder: (context, state) {
+                              final processing =
+                                  state is TransactionsProcessing &&
+                                  state.txnId == txn.id;
+                              final disabled =
+                                  txn.status.toLowerCase() == 'pending' ||
+                                  processing;
+
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: disabled
+                                          ? null
+                                          : () {
+                                              context
+                                                  .read<TransactionsBloc>()
+                                                  .add(RerunChain(txn.id));
+                                            },
+                                      child: processing
+                                          ? SizedBox(
+                                              height: 18,
+                                              width: 18,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                          : const Text(
+                                              'Re-run processing (simulate)',
+                                            ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      ListTile(
-                        title: Text(txn.description),
-                        subtitle: Text(txn.date),
-                        trailing: Text(
-                          '\$${txn.amount.toStringAsFixed(2)}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Expanded(child: TransactionChainWidget(txn: txn)),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: txn.status.toLowerCase() == 'pending'
-                                  ? null
-                                  : () {
-                                      // rerun chain
-                                      context.read<TransactionsBloc>().add(
-                                        RerunChain(txn.id),
-                                      );
-                                      Navigator.of(context).pop();
-                                    },
-                              child: const Text('Re-run processing (simulate)'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           );
         },
+
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(

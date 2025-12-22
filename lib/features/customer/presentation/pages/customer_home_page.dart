@@ -267,18 +267,6 @@ class _SummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          const Spacer(),
-          ElevatedButton.icon(
-            onPressed: () =>
-                Navigator.of(context).pushNamed('/customer/open-account'),
-            icon: const Icon(Icons.add),
-            label: const Text('Open account'),
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
         ],
       ),
     );

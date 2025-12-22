@@ -28,7 +28,6 @@ Future<void> configureDependencies() async {
   sl.registerLazySingleton<BankingLocalDataSource>(
     () => BankingLocalDataSource(),
   );
-  sl.registerLazySingleton<EventBus>(() => EventBus());
 
   // Factories
   sl.registerLazySingleton<ApprovalChainFactory>(
@@ -37,22 +36,9 @@ Future<void> configureDependencies() async {
   sl.registerLazySingleton<TransactionStrategyFactory>(
     () => DefaultTransactionStrategyFactory(sl<BankingLocalDataSource>()),
   );
-  sl.registerLazySingleton<BankingLocalDataSource>(
-    () => BankingLocalDataSource(),
-  );
+
   sl.registerLazySingleton<EventBus>(() => EventBus());
-  sl.registerFactory<BankingFacade>(
-    () => BankingFacade(
-      sl<BankingLocalDataSource>(),
-      sl<EventBus>(),
-      approvalChainFactory: sl<ApprovalChainFactory>(),
-      strategyFactory: sl<TransactionStrategyFactory>(),
-      session: sl<auth.CurrentSession>(),
-    ),
-  );
-  sl.registerFactory<NewTransactionCubit>(
-    () => NewTransactionCubit(sl<BankingFacade>()),
-  );
+
   sl.registerLazySingleton<CustomerFacadeMock>(() => CustomerFacadeMock());
 
   sl.registerFactory(() => CustomerHomeBloc(facade: sl()));

@@ -10,6 +10,7 @@ import '../chain/txn_handler.dart';
 import '../chain/txn_result.dart';
 
 class CustomerFacadeMock {
+  // --- mock transactions / tickets / accounts (existing) ---
   final List<TransactionModel> _transactions = [
     TransactionModel(
       id: 't1',
@@ -37,11 +38,34 @@ class CustomerFacadeMock {
     ),
   ];
 
+  final List<NotificationModel> _pastNotifications = [];
   final StreamController<NotificationModel> _notifController =
       StreamController<NotificationModel>.broadcast();
+
   Stream<NotificationModel> notificationsStream(String customerId) =>
       _notifController.stream;
-  void _pushNotification(NotificationModel n) => _notifController.add(n);
+
+  void _pushNotification(NotificationModel n) {
+    _pastNotifications.insert(0, n);
+    _notifController.add(n);
+  }
+
+  Future<List<NotificationModel>> fetchPastNotifications(
+    String customerId,
+  ) async {
+    await Future.delayed(const Duration(milliseconds: 30));
+    return List<NotificationModel>.from(_pastNotifications);
+  }
+
+  void sendTestNotification({required String title, required String body}) {
+    _pushNotification(
+      NotificationModel(
+        id: 'test_${DateTime.now().millisecondsSinceEpoch}',
+        title: title,
+        body: body,
+      ),
+    );
+  }
 
   Future<List<TransactionModel>> fetchTransactions(
     String customerId, {
@@ -101,7 +125,7 @@ class CustomerFacadeMock {
     _pushNotification(
       NotificationModel(
         id: 'n_${DateTime.now().millisecondsSinceEpoch}',
-        title: 'Transaction ${txn.id}',
+        title: 'Transaction ${txn.description}',
         body: 'Status changed to $newStatus',
       ),
     );
@@ -109,6 +133,7 @@ class CustomerFacadeMock {
     return updated;
   }
 
+  // --- support tickets ---
   final List<SupportTicketModel> _tickets = [];
 
   Future<List<SupportTicketModel>> fetchSupportTickets(
@@ -127,7 +152,7 @@ class CustomerFacadeMock {
     required String subject,
     required String message,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 300)); // simulate network
+    await Future.delayed(const Duration(milliseconds: 300));
     final ticket = SupportTicketModel(
       id: 'tk_${DateTime.now().millisecondsSinceEpoch}',
       customerId: customerId,
@@ -160,6 +185,7 @@ class CustomerFacadeMock {
     return updated;
   }
 
+  // --- accounts (flat + hierarchy) ---
   Future<List<AccountModel>> fetchAccountsFlat(String customerId) async {
     await Future.delayed(const Duration(milliseconds: 300));
     return [

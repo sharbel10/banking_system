@@ -23,12 +23,12 @@ class CustomerHomePage extends StatelessWidget {
     final accountId = st.customerAccountId;
 
     return BlocProvider(
-      create: (_) => CustomerHomeBloc(facade: sl<CustomerFacadeMock>())
-        ..add(LoadCustomerHome(customerId, accountId: accountId)),
+      create: (_) =>
+          CustomerHomeBloc(facade: sl<CustomerFacadeMock>())
+            ..add(LoadCustomerHome(customerId, accountId: accountId)),
       child: const _CustomerHomeView(),
     );
   }
-
 }
 
 class _CustomerHomeView extends StatelessWidget {
@@ -90,7 +90,6 @@ class _CustomerHomeView extends StatelessWidget {
               },
             ),
 
-
             const SizedBox(height: 16),
 
             Expanded(
@@ -108,6 +107,7 @@ class _CustomerHomeView extends StatelessWidget {
                     ),
                     enabled: true,
                   ),
+
                   const SizedBox(height: 12),
                   _ActionTile(
                     title: 'View Transactions',
@@ -135,8 +135,8 @@ class _CustomerHomeView extends StatelessWidget {
                     ),
                     enabled: true,
                   ),
-                  const SizedBox(height: 22),
 
+                  const SizedBox(height: 22),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(

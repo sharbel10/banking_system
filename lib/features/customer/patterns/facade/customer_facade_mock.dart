@@ -8,6 +8,8 @@ import 'package:banking_system/features/customer/data/models/account_model.dart'
 import 'package:banking_system/features/customer/data/models/notification_model.dart';
 import 'package:banking_system/features/customer/data/models/support_ticket_model.dart';
 import 'package:banking_system/features/customer/data/models/transaction_model.dart';
+import 'package:banking_system/features/customer/patterns/decorator/account_decorator.dart';
+import 'package:banking_system/features/customer/patterns/decorator/account_decorator_factory.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/session/session_cubit.dart';
@@ -37,7 +39,7 @@ class CustomerFacadeMock {
   // =========================
   final List<NotificationModel> _pastNotifications = [];
   final StreamController<NotificationModel> _notifController =
-  StreamController<NotificationModel>.broadcast();
+      StreamController<NotificationModel>.broadcast();
 
   Stream<NotificationModel> notificationsStream(String customerId) =>
       _notifController.stream;
@@ -47,7 +49,9 @@ class CustomerFacadeMock {
     _notifController.add(n);
   }
 
-  Future<List<NotificationModel>> fetchPastNotifications(String customerId) async {
+  Future<List<NotificationModel>> fetchPastNotifications(
+    String customerId,
+  ) async {
     await Future.delayed(const Duration(milliseconds: 30));
     return List<NotificationModel>.from(_pastNotifications);
   }
@@ -64,8 +68,7 @@ class CustomerFacadeMock {
 
   //  Convert Banking events -> Customer notifications (Observer)
   void _onBankEvent(BankingEvent e) {
-    final selectedAccountId =
-        sl<SessionCubit>().state.customerAccountId;
+    final selectedAccountId = sl<SessionCubit>().state.customerAccountId;
 
     bool related(TransactionEntity tx) {
       if (selectedAccountId == null) return true;
@@ -82,7 +85,7 @@ class CustomerFacadeMock {
           id: 'n_${DateTime.now().millisecondsSinceEpoch}',
           title: 'Transaction submitted',
           body:
-          '${tx.type.name.toUpperCase()} \$${tx.amount.toStringAsFixed(2)}',
+              '${tx.type.name.toUpperCase()} \$${tx.amount.toStringAsFixed(2)}',
         ),
       );
     }
@@ -109,7 +112,7 @@ class CustomerFacadeMock {
           id: 'n_${DateTime.now().millisecondsSinceEpoch}',
           title: 'Transaction approved',
           body:
-          '${tx.type.name.toUpperCase()} \$${tx.amount.toStringAsFixed(2)}',
+              '${tx.type.name.toUpperCase()} \$${tx.amount.toStringAsFixed(2)}',
         ),
       );
     }
@@ -123,18 +126,19 @@ class CustomerFacadeMock {
           id: 'n_${DateTime.now().millisecondsSinceEpoch}',
           title: 'Transaction rejected',
           body:
-          '${tx.type.name.toUpperCase()} \$${tx.amount.toStringAsFixed(2)}',
+              '${tx.type.name.toUpperCase()} \$${tx.amount.toStringAsFixed(2)}',
         ),
       );
     }
   }
-// =========================
+
+  // =========================
   // TRANSACTIONS (from BankingFacade) + chain simulate for UI
   // =========================
   Future<List<TransactionModel>> fetchTransactions(
-      String customerId, {
-        String? accountId,
-      }) async {
+    String customerId, {
+    String? accountId,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 150));
     final txs = banking.getTransactions(accountId: accountId);
     return txs.map(_mapTx).toList();
@@ -143,7 +147,7 @@ class CustomerFacadeMock {
   // simulate chain (UI only)
   Future<TransactionModel> processTransaction(String txnId) async {
     final tx = banking.getTransactions().firstWhere(
-          (t) => t.id == txnId,
+      (t) => t.id == txnId,
       orElse: () => throw Exception('Transaction not found'),
     );
 
@@ -200,9 +204,9 @@ class CustomerFacadeMock {
   // ACCOUNTS (from BankingFacade) + hierarchy builder (Composite)
   // =========================
   Future<List<AccountModel>> fetchAccountsFlat(
-      String customerId, {
-        String? accountId,
-      }) async {
+    String customerId, {
+    String? accountId,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 120));
     final accs = banking.getAccounts().map(_mapAcc).toList();
 
@@ -210,15 +214,86 @@ class CustomerFacadeMock {
     return accs.where((a) => a.id == accountId).toList();
   }
 
+  // Future<AccountComponent> fetchAccountsHierarchy(
+  //   String customerId, {
+  //   String? accountId, // ownerMainAccountId
+  // }) async {
+  //   final ownerId = accountId;
+
+  //   if (ownerId == null) {
+  //     // fallback: كل main accounts as root_all
+  //     final mains = banking.getAccounts().map(_mapAcc).toList();
+  //     final root = AccountComposite(
+  //       id: 'root_all',
+  //       name: 'All Accounts',
+  //       balance: 0,
+  //       parentId: null,
+  //     );
+  //     for (final m in mains) {
+  //       root.addChild(
+  //         AccountLeaf(
+  //           id: m.id,
+  //           name: m.name,
+  //           balance: m.balance,
+  //           parentId: null,
+  //         ),
+  //       );
+  //     }
+  //     return root;
+  //   }
+
+  //   final nodes = banking.getAccountNodes(ownerId);
+
+  //   // map nodes → components
+  //   final Map<String, AccountComponent> map = {};
+  //   for (final n in nodes) {
+  //     map[n.id] = n.parentId == null
+  //         ? AccountComposite(
+  //             id: n.id,
+  //             name: n.name,
+  //             balance: n.balance,
+  //             parentId: null,
+  //           )
+  //         : AccountLeaf(
+  //             id: n.id,
+  //             name: n.name,
+  //             balance: n.balance,
+  //             parentId: n.parentId,
+  //           );
+  //   }
+
+  //   // root = main account
+  //   final root = map[ownerId];
+  //   if (root == null) {
+  //     return AccountComposite(
+  //       id: 'empty',
+  //       name: 'No Accounts',
+  //       balance: 0,
+  //       parentId: null,
+  //     );
+  //   }
+
+  //   // attach leafs under main
+  //   for (final n in nodes) {
+  //     if (n.parentId != null) {
+  //       final parent = map[n.parentId];
+  //       final child = map[n.id]!;
+  //       if (parent is AccountComposite) parent.addChild(child);
+  //     }
+  //   }
+
+  //   return root;
+  // }
   Future<AccountComponent> fetchAccountsHierarchy(
-      String customerId, {
-        String? accountId, // ownerMainAccountId
-      }) async {
+    String customerId, {
+    String? accountId, // ownerMainAccountId
+  }) async {
     final ownerId = accountId;
 
+    final allAccounts = banking.getAccounts();
+
     if (ownerId == null) {
-      // fallback: كل main accounts as root_all
-      final mains = banking.getAccounts().map(_mapAcc).toList();
+      final mains = allAccounts.map(_mapAcc).toList();
       final root = AccountComposite(
         id: 'root_all',
         name: 'All Accounts',
@@ -226,12 +301,22 @@ class CustomerFacadeMock {
         parentId: null,
       );
       for (final m in mains) {
+        final origEntity = allAccounts.firstWhere((a) => a.id == m.id);
+        final decoratedEntity = AccountDecoratorFactory.applyAllDecorators(
+          origEntity,
+        );
+        debugPrintDecoratorChain(decoratedEntity);
+
+        // debug (اختياري)
+        print('Decorated ${origEntity.id} -> ${decoratedEntity.runtimeType}');
+
         root.addChild(
           AccountLeaf(
             id: m.id,
             name: m.name,
-            balance: m.balance,
+            balance: decoratedEntity.balance,
             parentId: null,
+            entity: decoratedEntity,
           ),
         );
       }
@@ -240,28 +325,39 @@ class CustomerFacadeMock {
 
     final nodes = banking.getAccountNodes(ownerId);
 
-    // map nodes → components
     final Map<String, AccountComponent> map = {};
     for (final n in nodes) {
+      final origEntity = allAccounts.firstWhere((a) => a.id == n.id);
+      final decoratedEntity = AccountDecoratorFactory.applyAllDecorators(
+        origEntity,
+      );
+
       map[n.id] = n.parentId == null
           ? AccountComposite(
-        id: n.id,
-        name: n.name,
-        balance: n.balance,
-        parentId: null,
-      )
+              id: n.id,
+              name: n.name,
+              balance: decoratedEntity.balance,
+              parentId: null,
+            )
           : AccountLeaf(
-        id: n.id,
-        name: n.name,
-        balance: n.balance,
-        parentId: n.parentId,
-      );
+              id: n.id,
+              name: n.name,
+              balance: decoratedEntity.balance,
+              parentId: n.parentId,
+              entity: decoratedEntity,
+            );
+      print('Decorated ${origEntity.id} -> ${decoratedEntity.runtimeType}');
     }
 
     // root = main account
     final root = map[ownerId];
     if (root == null) {
-      return AccountComposite(id: 'empty', name: 'No Accounts', balance: 0, parentId: null);
+      return AccountComposite(
+        id: 'empty',
+        name: 'No Accounts',
+        balance: 0,
+        parentId: null,
+      );
     }
 
     // attach leafs under main
@@ -276,14 +372,34 @@ class CustomerFacadeMock {
     return root;
   }
 
+  debugPrintDecoratorChain(AccountEntity e) {
+    AccountEntity current = e;
+    final chain = <String>[];
+    while (true) {
+      chain.add(current.runtimeType.toString());
+      if (current is AccountDecorator) {
+        current = (current as AccountDecorator).inner;
+      } else {
+        break;
+      }
+    }
+    print('Decorator chain for ${e.id}: ${chain.join(" -> ")}');
+  }
+
   // =========================
   // SUPPORT TICKETS (mock)
   // =========================
   final List<SupportTicketModel> _tickets = [];
 
-  Future<List<SupportTicketModel>> fetchSupportTickets(String customerId) async {
+  Future<List<SupportTicketModel>> fetchSupportTickets(
+    String customerId,
+  ) async {
     await Future.delayed(const Duration(milliseconds: 200));
-    return _tickets.where((t) => t.customerId == customerId).toList().reversed.toList();
+    return _tickets
+        .where((t) => t.customerId == customerId)
+        .toList()
+        .reversed
+        .toList();
   }
 
   Future<SupportTicketModel> createSupportTicket({
@@ -313,12 +429,29 @@ class CustomerFacadeMock {
     return ticket;
   }
 
-  Future<SupportTicketModel> updateTicketStatus(String ticketId, String newStatus) async {
+  Future<SupportTicketModel> updateTicketStatus(
+    String ticketId,
+    String newStatus,
+  ) async {
     final idx = _tickets.indexWhere((t) => t.id == ticketId);
     if (idx < 0) throw Exception('Ticket not found');
     final updated = _tickets[idx].copyWith(status: newStatus);
     _tickets[idx] = updated;
     return updated;
+  }
+
+  AccountEntity _decorateAccount(AccountEntity bankingAccount) {
+    // تحويل إلى AccountEntity الخاص بنا
+    final account = AccountEntity(
+      id: bankingAccount.id,
+      ownerName: bankingAccount.ownerName,
+      balance: bankingAccount.balance,
+      type: bankingAccount.type, // نأخذ نفس الـ AccountType
+      state: bankingAccount.state,
+    );
+
+    // تطبيق الديكوريتورات
+    return AccountDecoratorFactory.applyAllDecorators(account);
   }
 
   void dispose() {

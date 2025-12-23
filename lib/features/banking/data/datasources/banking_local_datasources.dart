@@ -23,10 +23,11 @@ class BankingLocalDataSource {
       const AccountEntity(
         id: 'ACC-001',
         ownerName: 'Ahmad Ali',
-        balance: 1200,
+        balance: 600,
         type: AccountType.checking,
         state: AccountState.active,
       ),
+
       const AccountEntity(
         id: 'ACC-002',
         ownerName: 'Sara Mohammed',
@@ -78,7 +79,6 @@ class BankingLocalDataSource {
     }
   }
 
-
   //  Manager-only
   void updateAccountState(String id, AccountState newState) {
     final acc = _accounts[id];
@@ -100,7 +100,6 @@ class BankingLocalDataSource {
     );
   }
 
-
   // ----------------------------
   // Transactions History
   // ----------------------------
@@ -118,7 +117,7 @@ class BankingLocalDataSource {
 
     return List.unmodifiable(
       _transactions.where(
-            (t) => t.accountId == accountId || t.toAccountId == accountId,
+        (t) => t.accountId == accountId || t.toAccountId == accountId,
       ),
     );
   }
@@ -159,7 +158,6 @@ class BankingLocalDataSource {
     );
   }
 
-
   final List<AuditLogEntity> _auditLogs = [];
 
   List<AuditLogEntity> getAuditLogs() => List.unmodifiable(_auditLogs);
@@ -168,14 +166,13 @@ class BankingLocalDataSource {
     _auditLogs.insert(0, e);
   }
 
-
   final Map<String, AccountNodeEntity> _nodes = {};
-  List<AccountNodeEntity> getAccountNodes(String ownerMainAccountId) =>
-      _nodes.values.where((n) => n.ownerMainAccountId == ownerMainAccountId).toList();
+  List<AccountNodeEntity> getAccountNodes(String ownerMainAccountId) => _nodes
+      .values
+      .where((n) => n.ownerMainAccountId == ownerMainAccountId)
+      .toList();
 
   void upsertNode(AccountNodeEntity n) {
     _nodes[n.id] = n;
   }
-
-
 }

@@ -1,6 +1,10 @@
+import 'package:banking_system/features/banking/domain/entities/account_entity.dart';
+
 import 'account_component.dart';
 
 class AccountLeaf implements AccountComponent {
+  final AccountEntity entity;
+
   @override
   final String id;
   @override
@@ -15,6 +19,7 @@ class AccountLeaf implements AccountComponent {
     required this.name,
     required this.balance,
     this.parentId,
+    required this.entity,
   });
 
   @override
@@ -30,5 +35,4 @@ class AccountLeaf implements AccountComponent {
   @override
   void removeChild(String childId) =>
       throw UnsupportedError('Leaf cannot remove children');
-
 }

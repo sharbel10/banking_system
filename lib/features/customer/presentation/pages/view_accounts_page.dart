@@ -14,9 +14,7 @@ class ViewAccountsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final st = context
-        .read<SessionCubit>()
-        .state;
+    final st = context.read<SessionCubit>().state;
     final customerId = 'demo-customer';
     final accountId = st.customerAccountId;
 
@@ -45,10 +43,14 @@ class _ViewAccountsView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () {
-  final st = context.read<SessionCubit>().state;
-  context.read<AccountsBloc>().add(RefreshAccounts('demo-customer', accountId: st.customerAccountId));
-
-  },
+              final st = context.read<SessionCubit>().state;
+              context.read<AccountsBloc>().add(
+                RefreshAccounts(
+                  'demo-customer',
+                  accountId: st.customerAccountId,
+                ),
+              );
+            },
           ),
         ],
       ),
